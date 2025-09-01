@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();  
 builder.Services.AddHttpClient<IScanEventApiClient, ScanEventApiClient>();  
 builder.Services.AddSingleton<IScanEventService, ScanEventService>();  
-builder.Services.AddSingleton<IScanEventRepository, InMemoryScanEventRepository>();  
+builder.Services.AddSingleton<IScanEventRepository, FileBasedScanEventRepository>();  
 
 //builder.Services
 //    .AddControllers()

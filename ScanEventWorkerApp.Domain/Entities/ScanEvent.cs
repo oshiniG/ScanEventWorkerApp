@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace ScanEventWorkerApp.Domain.Entities
@@ -20,6 +21,7 @@ namespace ScanEventWorkerApp.Domain.Entities
         }
         public int EventId { get; set; }
         public int ParcelId { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public EventType Type { get; set; }
         public DateTime CreatedDateTimeUtc { get; set; }
         public string StatusCode { get; set; }

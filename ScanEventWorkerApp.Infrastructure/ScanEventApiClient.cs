@@ -1,4 +1,5 @@
-﻿using ScanEventWorkerApp.Application.Interfaces;
+﻿using Microsoft.Extensions.Logging;
+using ScanEventWorkerApp.Application.Interfaces;
 using ScanEventWorkerApp.Application.Models;
 using System;
 using System.Collections.Generic;
@@ -13,27 +14,24 @@ namespace ScanEventWorkerApp.Infrastructure
     public class ScanEventApiClient : IScanEventApiClient
     {
         private readonly HttpClient _httpClient;
+        private readonly ILogger<ScanEventApiClient> _logger;
 
-        public ScanEventApiClient(HttpClient httpClient)
+        public ScanEventApiClient(HttpClient httpClient, ILogger<ScanEventApiClient> logger)
         {
             _httpClient = httpClient;
+            _logger = logger;
         }
 
         public async Task<List<ScanEventModel>> FetchScanEventsAsync(int fromEventId)
         {
             try
             {
-                // Fetch events starting from the provided event ID and limit to 100
                 var response = await _httpClient.GetAsync($"https://localhost:7253/v1/scans/scanevents?FromEventId={fromEventId}&Limit=100");
-                var scanEvents = new List<ScanEventModel>();
-
-                // Ensure the HTTP response is successful
+                _logger.LogInformation($"Received response: {(int)response.StatusCode} {response.ReasonPhrase}");
                 response.EnsureSuccessStatusCode();
 
-                // Read the response content as a string
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                // Check if the response content is not empty
                 if (!string.IsNullOrWhiteSpace(responseContent))
                 {
                     var options = new JsonSerializerOptions
@@ -42,20 +40,18 @@ namespace ScanEventWorkerApp.Infrastructure
                     };
                     options.Converters.Add(new JsonStringEnumConverter());
 
-                    scanEvents = JsonSerializer.Deserialize<List<ScanEventModel>>(responseContent, options);
+                    var scanEvents = JsonSerializer.Deserialize<List<ScanEventModel>>(responseContent, options);
+
                     return scanEvents ?? new List<ScanEventModel>();
-                      
                 }
 
-                return scanEvents;
+                return new List<ScanEventModel>();
             }
             catch (Exception ex)
             {
-                // Catch any other unexpected errors
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                return new List<ScanEventModel>();  // Return empty list in case of error
+                _logger.LogError(ex, $"Failed to fetch scan events from EventId {fromEventId}");
+                return new List<ScanEventModel>(); 
             }
-
-        }
+        }   
     }
 }

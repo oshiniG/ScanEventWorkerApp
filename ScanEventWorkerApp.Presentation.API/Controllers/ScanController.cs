@@ -15,7 +15,6 @@ namespace ScanEventWorkerApp.Presentation.API.Controllers
             _scanEventService = scanEventService;
         }
 
-        // GET: v1/scans/scanevents?FromEventId=83269&Limit=100
         [HttpGet]
         public async Task<IActionResult> GetScanEvents(int? fromEventId = 1, int limit = 100)
         {
@@ -62,7 +61,6 @@ namespace ScanEventWorkerApp.Presentation.API.Controllers
             }
             catch (Exception ex)
             {
-                // Handle any exceptions (like invalid data or server errors)
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
